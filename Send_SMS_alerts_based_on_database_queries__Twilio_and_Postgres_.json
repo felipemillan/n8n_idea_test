@@ -1,0 +1,143 @@
+{
+  "name": "Send SMS alerts based on database queries (Twilio and Postgres)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        380,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "6873c512-53fd-41b1-9662-f026a787565a"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM n8n WHERE value > 70 AND notification = false;",
+        "additionalFields": {}
+      },
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        580,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "38ce75b4-04a4-4a4a-b971-8cdf1055ce1d"
+    },
+    {
+      "parameters": {
+        "message": "=🚨 The Sensor ({{$node[\"Postgres\"].json[\"sensor_id\"]}}) showed a reading of {{$node[\"Postgres\"].json[\"value\"]}}.",
+        "options": {}
+      },
+      "name": "Twilio",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        780,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "905b980c-cbaa-45bf-ac9e-150f68b3588f"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "number": [
+            {
+              "name": "id",
+              "value": "={{$node[\"Postgres\"].json[\"id\"]}}"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "notification",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        980,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "c8886664-df4f-4c10-94a0-47784de55a4d"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": "n8n",
+        "columns": "notification",
+        "additionalFields": {}
+      },
+      "name": "Postgres1",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1180,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "2d060213-8ff2-4ed3-b54f-6e025e289f32"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Postgres1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "",
+  "meta": {
+    "instanceId": "307382b38c67d1530ca68d83854638962fd3a0593e5ffc691843a9cd148ba469"
+  },
+  "tags": []
+}

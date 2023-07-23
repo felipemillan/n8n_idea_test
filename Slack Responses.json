@@ -1,0 +1,289 @@
+{
+  "active": false,
+  "connections": {
+    "Catch Slack Responses": {
+      "main": [
+        [
+          {
+            "node": "Clean up Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean up Headers": {
+      "main": [
+        [
+          {
+            "node": "Route to Reply Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Reply Group": {
+      "main": [
+        [
+          {
+            "node": "Write Github Issue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Was new build requested?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Github Issue": {
+      "main": [
+        [
+          {
+            "node": "Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Github Issue": {
+      "main": [
+        [
+          {
+            "node": "Create Github Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Was new build requested?": {
+      "main": [
+        [
+          {
+            "node": "Trigger CMS Build",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger CMS Build": {
+      "main": [
+        [
+          {
+            "node": "Respond to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "createdAt": "2022-12-19T21:06:30.304Z",
+  "id": "3",
+  "name": "Slack Responses",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "7be68554-7cf3-4d70-ba8c-93fecb9f84e4",
+        "options": {}
+      },
+      "id": "91e58ded-0e9f-430b-a5c5-50dc446ef894",
+      "name": "Catch Slack Responses",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        280,
+        320
+      ],
+      "webhookId": "7be68554-7cf3-4d70-ba8c-93fecb9f84e4"
+    },
+    {
+      "parameters": {
+        "additionalOptions": {}
+      },
+      "id": "4e9cf788-0458-4e10-83cf-a44006e3296f",
+      "name": "Clean up Headers",
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        500,
+        320
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ad74011d-e778-48c7-a090-78ab000d9df9",
+      "name": "Route to Reply Group",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        720,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Reply Groups\n\nThe Sentry responses go to one group, Builds to another, etc...\n\n### Example workflow Routes\n\n\n0) Sentry\n\n1) CMS Build Status & Build Trigger Requests\n\n2) Github Issues/Alerts\n\n3) Other - Route to Switch #2",
+        "height": 693,
+        "width": 475
+      },
+      "id": "9752ad48-0c03-4893-81b7-48c9d9afed6f",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        680,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a4e6103e-5427-4333-96bd-7668e737d842",
+      "name": "Respond to Slack",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        2500,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "labels": [],
+        "assignees": []
+      },
+      "id": "3fb9abf6-2f31-4fcf-a7af-11fc3c3f86cd",
+      "name": "Create Github Issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -120
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "2",
+          "name": "Boaty's GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Sentry\n\nCreate github issue if **Create Issue** button is clicked in Slack\n\nTakes Sentry error info and applies to a Github issue template. Slack bot has a list of who to assign it to. That list can be maintained here or via a Github repo with Github usernames in it. (Dropdown in Slack)",
+        "height": 474,
+        "width": 710
+      },
+      "id": "532c17e1-eaa9-40c3-9a6d-fecfeb1e9bcb",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "49bd827d-86fe-4ff3-8616-bd66596d92d5",
+      "name": "Write Github Issue",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "options": {}
+      },
+      "id": "b0c9fe2e-aa0a-4d0a-8f1d-1532827814a9",
+      "name": "Trigger CMS Build",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        1660,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## CMS Build\n\nI have it set to do both a HTTP POST. It can also trigger a Github release. I've put that here _greyed out_. I'm not sure what is needed to make a release happen, but this is just an example.\n\n",
+        "height": 800,
+        "width": 743
+      },
+      "id": "e5c1b982-fc83-4440-8b8c-c9886df8664c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "release",
+        "additionalFields": {}
+      },
+      "id": "cffe7f66-f826-432b-810b-04a370c0562c",
+      "name": "GitHub",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        540
+      ],
+      "credentials": {
+        "githubApi": {
+          "id": "2",
+          "name": "Boaty's GitHub account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "id": "5d168613-764d-43a1-afb5-3cac94112c89",
+      "name": "Was new build requested?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        820
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2022-12-19T21:21:36.000Z",
+  "versionId": "b93c3a0f-14a0-4ce2-98ee-08cc5f302d91"
+}

@@ -1,0 +1,224 @@
+{
+  "name": "Triage alerts from Syncro and submit to OpsGenie",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fromsyncro",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        380,
+        240
+      ],
+      "webhookId": "fromsyncro",
+      "typeVersion": 1,
+      "id": "e872c862-a953-4704-979d-538fb9576b01"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "AlertID",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"id\"]}}"
+            },
+            {
+              "name": "Description",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"computer_name\"]}} ({{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"customer\"][\"business_then_name\"]}}): {{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"formatted_output\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        700,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "2309c663-afe5-4fc6-91d6-ecc0d9dfc039"
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "url": "https://api.opsgenie.com/v2/alerts",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "message",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"computer_name\"]}} ({{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"customer\"][\"business_then_name\"]}}): {{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"formatted_output\"]}}"
+            },
+            {
+              "name": "alias",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"id\"]}}"
+            },
+            {
+              "name": "description",
+              "value": "={{$node[\"Webhook\"].json[\"body\"][\"text\"]}}\n{{$node[\"Webhook\"].json[\"body\"][\"link\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Create Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        120
+      ],
+      "typeVersion": 1,
+      "id": "e3f51be9-94ee-4e6f-bdbd-5bb1360288a2"
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "url": "=https://api.opsgenie.com/v2/alerts/{{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"id\"]}}/close?identifierType=alias",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "note",
+              "value": "Issue resolved automatically according to Syncro."
+            }
+          ]
+        }
+      },
+      "name": "Close Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        320
+      ],
+      "typeVersion": 1,
+      "id": "f3d593cb-43b4-428c-aa17-4c5b6a05f361"
+    },
+    {
+      "parameters": {},
+      "name": "NoOp",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        700,
+        420
+      ],
+      "typeVersion": 1,
+      "id": "dc082b5a-f2f9-4582-b349-182dbcfcb00a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"resolved\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        860,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "d853ed54-b3cc-4845-bd25-a20536c8ac35"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$node[\"Webhook\"].json[\"body\"][\"attributes\"][\"properties\"][\"trigger\"]}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "agent_offline_trigger"
+            }
+          ]
+        }
+      },
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        540,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "b63e7fb8-98fd-4012-a0ca-8cc7798924e4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Create Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Close Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoOp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "",
+  "meta": {
+    "instanceId": "307382b38c67d1530ca68d83854638962fd3a0593e5ffc691843a9cd148ba469"
+  },
+  "tags": []
+}

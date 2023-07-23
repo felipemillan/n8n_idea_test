@@ -1,0 +1,265 @@
+{
+  "active": false,
+  "connections": {
+    "Every 5 Mins.": {
+      "main": [
+        [
+          {
+            "node": "Get Sentry Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catch Sentry Events": {
+      "main": [
+        [
+          {
+            "node": "Clean up Header Names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean up Header Names": {
+      "main": [
+        [
+          {
+            "node": "Do we need it?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Do we need it?": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Write Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Slack Message": {
+      "main": [
+        [
+          {
+            "node": "Post Slack Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Sentry Events": {
+      "main": [
+        [
+          {
+            "node": "Rename Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Headers": {
+      "main": [
+        [
+          {
+            "node": "Do we need it?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-12-19T20:44:34.731Z",
+  "id": "2",
+  "name": "Sentry Alert Mgmt.",
+  "nodes": [
+    {
+      "parameters": {
+        "sentryVersion": "server",
+        "operation": "getAll",
+        "organizationSlug": "fff",
+        "projectSlug": "ffslug"
+      },
+      "id": "e70e63e1-c0ac-48cf-b75d-da0722574883",
+      "name": "Get Sentry Events",
+      "type": "n8n-nodes-base.sentryIo",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "c46de401-608c-4084-b7e7-3eae95f926df",
+      "name": "Every 5 Mins.",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "98b5be93-1336-4959-b372-2baaf9245e50",
+        "options": {}
+      },
+      "id": "7f8a2635-d2eb-4ac6-8380-7563dde0f008",
+      "name": "Catch Sentry Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        560
+      ],
+      "webhookId": "98b5be93-1336-4959-b372-2baaf9245e50"
+    },
+    {
+      "parameters": {
+        "additionalOptions": {}
+      },
+      "id": "4aa9ea7e-0319-45f5-91e8-7693ce472021",
+      "name": "Clean up Header Names",
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        420,
+        560
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "9c15e5c0-2a2b-427a-94d0-9b4c63d9e2c4",
+      "name": "Do we need it?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        460
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a789ef8c-172b-49d9-a3af-af2ad282d469",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        960,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeDuplicates"
+      },
+      "id": "59175752-1d0d-4300-9e9e-de36ec69a95f",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        960,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "otherOptions": {},
+        "attachments": []
+      },
+      "id": "728574e3-fdd4-4e61-bdbd-e2c48c5da935",
+      "name": "Post Slack Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "e97d0c8e-1988-42fd-90ef-1895aeadf9bd",
+      "name": "Write Slack Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "additionalOptions": {}
+      },
+      "id": "c1e699c8-5c07-4cdc-836b-92b630f06b32",
+      "name": "Rename Headers",
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Slack Responses\nOnce message is posted to Slack, responses are sent via webhook. \n\nTo account for future integration, all response data can be sent to a single webhook workflow, **[available here.](https://reinhardt.boatydemo.com/workflow/3)** \n\n",
+        "height": 277,
+        "width": 295
+      },
+      "id": "d01892b2-2167-4d32-ad97-5b7fa31142ea",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        520
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {},
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2022-12-19T21:08:04.000Z",
+  "versionId": "7365b67c-3004-4d25-9245-46cea0f6a780"
+}

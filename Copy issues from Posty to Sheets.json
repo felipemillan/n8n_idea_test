@@ -1,0 +1,224 @@
+{
+  "active": true,
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-12-30T09:22:43.290Z",
+  "id": "17",
+  "name": "Copy issues from Posty to Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 13
+            }
+          ]
+        }
+      },
+      "id": "a3253eac-27ef-45ff-a99b-8da4677fd90e",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        380,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select issue_number as \"Issue\", title as \"Title\", state as \"Status\", comments as \"Comment Count\", gh_created_at as \"Created\", gh_updated_at as \"Updated\", body as \"Body\", github_user as \"Creator\", repo_owner, repo_name, node_id, labels as \"Labels\", date_trunc('day', age(current_timestamp, gh_updated_at)) as \"Time Inactive\" from github.issues;",
+        "additionalFields": {}
+      },
+      "id": "00f0e024-439b-443e-a888-9e2e657421c3",
+      "name": "Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        640,
+        480
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "4",
+          "name": "PostyTheGres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit?pli=1#gid=934828957",
+          "mode": "url",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com\\/\\w+\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 934828957,
+          "mode": "list",
+          "cachedResultName": "Issues",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit#gid=934828957"
+        },
+        "columnToMatchOn": "node_id",
+        "valueToMatchOn": "={{ $json[\"node_id\"] }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "Issue",
+              "fieldValue": "={{ $json[\"Issue\"] }}"
+            },
+            {
+              "column": "Time Inactive",
+              "fieldValue": "={{ $json[\"Time Inactive\"][\"days\"] }} days,  {{ $json[\"Time Inactive\"][\"months\"] }} months, & {{ $json[\"Time Inactive\"][\"years\"] }} Years"
+            },
+            {
+              "column": "Title",
+              "fieldValue": "={{ $json[\"Title\"] }}"
+            },
+            {
+              "column": "Status",
+              "fieldValue": "={{ $json[\"Status\"] }}"
+            },
+            {
+              "column": "Comment Count",
+              "fieldValue": "={{ $json[\"Comment Count\"] }}"
+            },
+            {
+              "column": "Body",
+              "fieldValue": "={{ $json[\"Body\"] }}"
+            },
+            {
+              "column": "Creator",
+              "fieldValue": "={{ $json[\"Creator\"] }}"
+            },
+            {
+              "column": "repo_owner",
+              "fieldValue": "={{ $json[\"repo_owner\"] }}"
+            },
+            {
+              "column": "repo_name",
+              "fieldValue": "={{ $json[\"repo_name\"] }}"
+            },
+            {
+              "column": "Labels",
+              "fieldValue": "={{ $json[\"Labels\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8f5c3de6-4486-471b-a174-1a5c0c9eca99",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5",
+          "name": "Boaty N8N Reinhardt"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 100,
+        "options": {}
+      },
+      "id": "3ada0160-72dc-4d15-acc1-d185181160b9",
+      "name": "Split In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        860,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "id": "5f4d1572-6318-48ae-9a9c-ba17bc09e9a1",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        480
+      ],
+      "webhookId": "6bb98961-abf6-4e6d-a121-0a1c3217833a"
+    }
+  ],
+  "pinData": {},
+  "settings": {},
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrencyRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2023-01-24T16:37:19.000Z",
+  "versionId": "1364414e-133c-471a-87ba-9332f9a5804b"
+}

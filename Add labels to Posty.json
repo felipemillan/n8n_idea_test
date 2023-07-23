@@ -1,0 +1,315 @@
+{
+  "active": true,
+  "connections": {
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "pg_id empty?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pg_id empty?": {
+      "main": [
+        [
+          {
+            "node": "Add to Posty",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Posty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Posty": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Posty1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Posty1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Posty": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2022-12-30T08:51:13.535Z",
+  "id": "16",
+  "name": "Add labels to Posty",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit?pli=1#gid=0",
+          "mode": "url",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com\\/\\w+\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Labels",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit#gid=0"
+        },
+        "columnToMatchOn": "node_id",
+        "valueToMatchOn": "={{ $json[\"node_id\"] }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "pg_id",
+              "fieldValue": "={{ $json[\"pg_id\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "c685f86f-86e1-438f-811f-b63c87e6fbb3",
+      "name": "Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        620,
+        640
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5",
+          "name": "Boaty N8N Reinhardt"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit?pli=1#gid=0",
+          "mode": "url",
+          "__regex": "https:\\/\\/(?:drive|docs)\\.google\\.com\\/\\w+\\/d\\/([0-9a-zA-Z\\-_]+)(?:\\/.*|)"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Labels",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UsIWTg4WyaGRNmh064sTnKvgp413p5VNXC5zM28qFJc/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "0d1d4cb4-5436-452f-ab44-5ea02381574f",
+      "name": "Google Sheets2",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -340,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5",
+          "name": "Boaty N8N Reinhardt"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"pg_id\"] }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "28f1b9af-7b80-4497-aa7c-43f82c407e5d",
+      "name": "pg_id empty?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "schema": "github",
+        "table": "labels",
+        "columns": "id,node_id,url,name,color,default,description,repo_owner,repo_name",
+        "additionalFields": {
+          "mode": "independently"
+        }
+      },
+      "id": "e4a45021-5a9d-4a70-8c40-43a961dcfaac",
+      "name": "Add to Posty",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        340,
+        220
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "4",
+          "name": "PostyTheGres"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": "github",
+        "table": "labels",
+        "updateKey": "node_id",
+        "columns": "id,url,name,color,default,description,repo_owner,repo_name",
+        "returnFields": "node_id,pg_id",
+        "additionalFields": {
+          "mode": "independently"
+        }
+      },
+      "id": "2518b545-f3fb-4aa5-90aa-e79e246463eb",
+      "name": "Update Posty",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        340,
+        460
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "4",
+          "name": "PostyTheGres"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "id": "fad9297b-aecd-4e34-a22c-3205e7b23d9a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select pg_id, node_id from github.labels where pg_id is not null;",
+        "additionalFields": {
+          "mode": "multiple"
+        }
+      },
+      "id": "93c2eeb6-97b5-4cd5-8715-ec81b3e2ec53",
+      "name": "Update Posty1",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        280,
+        640
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "4",
+          "name": "PostyTheGres"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {},
+      "id": "4b63e71e-6a56-4ad1-a520-0ade344dfb79",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        480
+      ]
+    }
+  ],
+  "pinData": {},
+  "settings": {},
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrencyRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2023-01-24T16:37:19.000Z",
+  "versionId": "b6221b71-a7ae-412b-854b-b4603fea0bba"
+}

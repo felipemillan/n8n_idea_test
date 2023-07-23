@@ -1,0 +1,255 @@
+{
+  "name": "Transcribe audio files from Cloud Storage",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "append",
+        "sheetId": "qwertz",
+        "range": "A:D",
+        "options": {}
+      },
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1500,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "b9ad265e-b70c-46be-bfde-8e4f52816c68"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "transcriptionJobName": "={{$json[\"Key\"]}}"
+      },
+      "name": "AWS Transcribe 2",
+      "type": "n8n-nodes-base.awsTranscribe",
+      "position": [
+        1180,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "da1353f7-20f8-4224-93f2-1cbf9a6898cd"
+    },
+    {
+      "parameters": {
+        "transcriptionJobName": "={{$json[\"Key\"]}}",
+        "mediaFileUri": "=s3://{{$node[\"AWS S3 2\"].parameter[\"bucketName\"]}}/{{$json[\"Key\"]}}",
+        "options": {}
+      },
+      "name": "AWS Transcribe 1",
+      "type": "n8n-nodes-base.awsTranscribe",
+      "position": [
+        860,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "d5f2ec3c-57d0-4238-9198-2938f73a6e19"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "mybucket",
+        "fileName": "={{$json[\"name\"]}}",
+        "binaryData": false,
+        "fileContent": "street",
+        "additionalFields": {},
+        "tagsUi": {
+          "tagsValues": [
+            {
+              "key": "source",
+              "value": "gdrive"
+            }
+          ]
+        }
+      },
+      "name": "AWS S3 1",
+      "type": "n8n-nodes-base.awsS3",
+      "position": [
+        540,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "5d95ed96-6a76-425a-8a46-cf740b5c9d08"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "bucketName": "mybucket",
+        "options": {}
+      },
+      "name": "AWS S3 2",
+      "type": "n8n-nodes-base.awsS3",
+      "position": [
+        700,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "dce07154-b7b0-43b1-a902-25e64cc00b70"
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "transcription_date",
+              "value": "={{$node[\"AWS Transcribe 1\"].json[\"CreationTime\"]}}"
+            }
+          ],
+          "string": [
+            {
+              "name": "recording_name",
+              "value": "={{$node[\"AWS Transcribe 1\"].json[\"TranscriptionJobName\"]}}"
+            },
+            {
+              "name": "recording_link",
+              "value": "={{$node[\"Google Drive Trigger\"].json[\"webContentLink\"]}}"
+            },
+            {
+              "name": "transcription",
+              "value": "={{$json[\"transcript\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1340,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "37b744b1-859c-4ae9-ade9-188a0c3ddee2"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": "https://drive.google.com/drive/folders/[your_id]",
+        "event": "fileCreated",
+        "options": {}
+      },
+      "name": "Google Drive Trigger1",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        380,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "30ccb0a5-c87b-4bca-9511-7ff6edbfa64e"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "responseMode": "lastNode",
+        "options": {
+          "responsePropertyName": "transcript"
+        }
+      },
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1020,
+        240
+      ],
+      "webhookId": "12345",
+      "typeVersion": 1,
+      "id": "ddbbf374-56d8-43e0-a078-d97bb6bf9258"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AWS Transcribe 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3 1": {
+      "main": [
+        [
+          {
+            "node": "AWS S3 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3 2": {
+      "main": [
+        [
+          {
+            "node": "AWS Transcribe 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Transcribe 1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS Transcribe 2": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AWS S3 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "",
+  "meta": {
+    "instanceId": "307382b38c67d1530ca68d83854638962fd3a0593e5ffc691843a9cd148ba469"
+  },
+  "tags": []
+}
